@@ -1,0 +1,189 @@
+﻿@using Dominio
+@model Dominio.Proyecto
+
+@{
+    ViewData["Title"] = "Proyecto";
+}
+
+
+<h1>Detalles de proyecto</h1>
+
+<div class="row">
+<div class="contenedor col-7">
+    <dl class="row">
+        @if (ViewBag.usuarioLogueado != Model.Autor)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Autor)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Autor)
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Nombre)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Nombre)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Tecnologias)
+        </dt>
+        <dd class="col-sm-10">
+            @foreach (Aptitud a in Model.Tecnologias)
+            {
+                <p>@a.Nombre</p>
+            }
+            <p>@Html.ActionLink("Editar tecnologías", "EditTecnologia", new { Model.Id }) </p>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Descripcion)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Descripcion)
+        </dd>
+        @if (ViewBag.usuarioLogueado == Model.Autor)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Tipo)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Tipo)
+                @if (Model.Tipo == "Privado")
+                {
+                    <p>@Html.ActionLink("Cambiar proyecto a público", "ProyectoPublico", new { Model.Nombre })</p>
+                }
+                else
+                {
+                    <p>@Html.ActionLink("Cambiar proyecto a privado", "ProyectoPrivado", new { Model.Nombre })</p>
+                }
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Estado)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Estado)
+            @if (ViewBag.usuarioLogueado == Model.Autor)
+            {
+                @if (Model.Estado == "En progreso")
+                {
+                    <p>@Html.ActionLink("Pausar", "PausarProyecto", new { Model.Nombre }) | @Html.ActionLink("Finalizar", "TerminarProyecto", new { Model.Nombre })</p>
+                }
+                else if (Model.Estado == "En pausa")
+                {
+                    <p>@Html.ActionLink("Activar", "ActivarProyecto", new { Model.Nombre }) | @Html.ActionLink("Finalizar", "TerminarProyecto", new { Model.Nombre })</p>
+                }
+            }
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Archivos)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Archivos.Count() == 0)
+            {
+                <p>No hay archivos cargados para este proyecto</p>
+            }
+            else
+            {
+                foreach (Archivo a in Model.Archivos)
+                {
+                    <p>
+                        Nombre: @a.Nombre | Autor: @a.Autor | @Html.ActionLink("Detalles", "DetailsArchivo", new { a.Id }) | @if (Model.Estado == "En progreso" && ViewBag.usuarioLogueado == Model.Autor)
+                        {
+                            <a>@Html.ActionLink("Eliminar", "DeleteArchivo", new { archivoId = a.Id, proyectoId = Model.Id })</a>
+                        }</p>
+                    
+                }
+            }
+            @if(Model.Estado == "En progreso")
+            {
+                <p>@Html.ActionLink("Subir archivos", "SubirArchivo", new { Model.Id }) </p>
+            }
+            
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Ayudantes)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Ayudantes.Count() == 0)
+            {
+                <p>No hay ayudantes para este proyecto</p>
+            }
+            else
+            {
+                foreach (Usuario a in Model.Ayudantes)
+                {
+                    <p>
+                        @a.Nombre
+                    </p>
+
+                }
+            }
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Consejeros)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Consejeros.Count() == 0)
+            {
+                <p>No hay consejeros para este proyecto</p>
+            }
+            else
+            {
+                foreach (Usuario c in Model.Consejeros)
+                {
+                    <p>
+                        @c.Nombre
+                    </p>
+
+                }
+            }
+        </dd>
+    </dl>
+</div>
+
+@* CHAT DE CONSEJOS *@
+<div class="col-4 contenedor consejos">
+    <h4>Consejos</h4>
+    <div>
+        @if(Model.Consejos.Count > 0)
+        {
+            @foreach (Consejo c in Model.Consejos)
+            {
+                <div class="consejo row">
+                        <p class="col-2" style="color: #146LeL !important;">@c.Autor.Nombre</p>
+                        <p class="col-10" style="color: #05283c;">@c.Mensaje</p>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Ningún consejo ha sido enviado para este proyecto</p>
+        }
+
+    </div>
+    <form asp-action="EnviarConsejo">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" name="nameUser" value="@ViewBag.usuarioLogueado" />
+        <div class="d-none">
+            <input asp-for="Id" class="form-control" hidden readonly />
+            <span asp-validation-for="Id" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input for="mensaje" name="mensaje" placeholder="Escribe un mensaje" />
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Enviar" class="btn btn-primary" />
+        </div>
+    </form>
+    @if (ViewBag.usuarioLogueado == Model.Autor)
+    {
+        <div>
+            @Html.ActionLink("Pedir ayuda", "PedirAyuda", new { Model.Id })
+        </div>
+    }
+
+    <p>@ViewBag.msg</p>
+</div>
+</div>

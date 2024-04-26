@@ -1,0 +1,69 @@
+﻿@using Dominio
+@model Dominio.Proyecto
+
+@{
+    ViewData["Title"] = "Crear proyecto";
+}
+
+<h1>Crea un proyecto</h1>
+
+<div class="row contenedor">
+    <div class="col-md-4">
+        <form asp-action="CreateProyecto">
+            <input type="hidden" name="userID" value="@ViewBag.userId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input asp-for="Nombre" placeholder="Nombre"/>
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <textarea asp-for="Descripcion" placeholder="Describe tu proyecto..."></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <select for="a1" name="a1">
+                    <option value="X">Seleccione una aptitud</option>
+                    @foreach(Aptitud a in ViewBag.aptitudes)
+                    {
+                        <option value="@a.Nombre">@a.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <select for="a2" name="a2">
+                    <option value="X">Seleccione una aptitud</option>
+                    @foreach (Aptitud a in ViewBag.aptitudes)
+                    {
+                        <option value="@a.Nombre">@a.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <select for="a3" name="a3">
+                    <option value="X">Seleccione una aptitud</option>
+                    @foreach (Aptitud a in ViewBag.aptitudes)
+                    {
+                        <option value="@a.Nombre">@a.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <select asp-for="Tipo">
+                    <option value="Publico">Público</option>
+                    <option value="Privado">Privado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Crear proyecto" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div>
+        <p>@ViewBag.msg</p>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
